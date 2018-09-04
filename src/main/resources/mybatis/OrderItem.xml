@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.melvin.order.dao.order.IOrder">
+
+    <!--订单子表结果集映射-->
+    <resultMap id="OrderDetail" type="OrderDetailAlias">
+        <id column="id" jdbcType="INTEGER" property="id"/>
+        <result column="order_id" jdbcType="INTEGER" property="OrderId"/>
+        <result column="product_id" jdbcType="INTEGER" property="productId"/>
+        <result column="product_name" jdbcType="VARCHAR" property="productName"/>
+        <result column="num" jdbcType="INTEGER" property="num"/>
+        <result column="price" jdbcType="INTEGER" property="price"/>
+    </resultMap>
+
+    <!--查询订单子表的信息-->
+    <select id="queryOneOrderDetail" parameterType="int" resultMap="OrderDetail">
+        SELECT * FROM order_detail WHERE id=#{id:INTEGER}
+    </select>
+
+    <insert id="insertOneOrderDetail" parameterType="cn.melvin.order.domain.order.OrderItem">
+        INSERT INTO order_detail
+        (order_id,product_id,product_name,num,price) VALUES (#{OrderId},#{productId},#{productName},#{num},#{price})
+    </insert>
+
+    <insert id="insertBatchOrderDetail" parameterType="java.util.List">
+        INSERT INTO order_detail (order_id,product_id,product_name,num,price) VALUES
+        <foreach collection="list" index="index" item="item" separator=",">
+            (#{item.OrderId},#{item.productId},#{item.productName},#{item.num},#{item.price})
+        </foreach>
+    </insert>
+</mapper>

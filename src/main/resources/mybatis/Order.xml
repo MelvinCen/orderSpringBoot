@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.melvin.order.dao.order.IOrder">
+
+    <!--该结果集只映射订单主表的基本信息，没有映射订单子表的信息-->
+    <resultMap id="OrderResult" type="OrderAlias">
+        <id column="id" jdbcType="INTEGER" property="id"/>
+        <result column="order_date" jdbcType="TIMESTAMP" property="orderDate"/>
+        <result column="status" jdbcType="INTEGER" property="status"/>
+        <result column="consignee" jdbcType="VARCHAR" property="consignee"/>
+        <result column="phone" jdbcType="VARCHAR" property="phone"/>
+        <result column="province" jdbcType="VARCHAR" property="province"/>
+        <result column="city" jdbcType="VARCHAR" property="city"/>
+        <result column="district" jdbcType="VARCHAR" property="district"/>
+        <result column="address" jdbcType="VARCHAR" property="address"/>
+    </resultMap>
+
+    <!--该结果集映射了订单主表的信息还包括订单子表的信息-->
+    <resultMap id="OrderWithDetailResult" type="OrderAlias">
+        <id column="id" jdbcType="INTEGER" property="id"/>
+        <result column="order_date" jdbcType="TIMESTAMP" property="orderDate"/>
+        <result column="status" jdbcType="INTEGER" property="status"/>
+        <result column="consignee" jdbcType="VARCHAR" property="consignee"/>
+        <result column="phone" jdbcType="VARCHAR" property="phone"/>
+        <result column="province" jdbcType="VARCHAR" property="province"/>
+        <result column="city" jdbcType="VARCHAR" property="city"/>
+        <result column="district" jdbcType="VARCHAR" property="district"/>
+        <result column="address" jdbcType="VARCHAR" property="address"/>
+        <collection property="orderItems" resultMap="cn.melvin.order.dao.order.IOrder.OrderDetail"/>
+    </resultMap>
+
+    <!--查询订单但不涉及订单子表-->
+    <select id="queryOneOrder" parameterType="int" resultMap="OrderResult">
+        SELECT id,order_date,consignee,status FROM order_main WHERE id=#{id:INTEGER}
+    </select>
+
+    <!--查询订单包括订单子表的集合-->
+    <select id="queryOneOrderWithDetail" parameterType="int"
+            resultMap="OrderWithDetailResult">
+        SELECT a.id,a.order_date,a.consignee,a.status,b.id did,b.order_id,b.product_id,b.product_name,
+        b.num,b.price FROM order_main a left join order_detail b on a.id=b.order_id
+        WHERE a.id = #{id:INTEGER}
+    </select>
+
+    <!--插入一条订单不包括子订单-->
+    <insert id="insertOneOrder" parameterType="OrderAlias"
+            useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO order_main (order_date,consignee,phone,province,city,district,address,status)
+        VALUES (#{orderDate},#{consignee},#{phone},#{province},#{city},#{district},#{address},#{status})
+    </insert>
+</mapper>
